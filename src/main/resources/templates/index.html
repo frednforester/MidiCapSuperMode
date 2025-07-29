@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIDI Captain Configuration Builder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .section-card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 10px;
+        }
+        .help-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .key-section {
+            margin-bottom: 2rem;
+        }
+        .operation-group {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f8f9fa;
+        }
+        .form-control-sm {
+            font-size: 0.875rem;
+        }
+        .form-select-sm {
+            font-size: 0.875rem;
+        }
+        .operation-type-checkbox {
+            margin-right: 0.5rem;
+        }
+        .operation-types-container {
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 0.75rem;
+            background-color: #f8f9fa;
+        }
+        .operation-config {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+            border: 1px solid #dee2e6;
+        }
+        .form-check-inline {
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+                <div class="text-center mb-4">
+                    <h1 class="display-5 text-primary">
+                        <i class="fas fa-music me-3"></i>
+                        MIDI Captain Configuration Builder
+                    </h1>
+                    <p class="lead text-muted">Build your MIDI Captain PageConfig with ease</p>
+                </div>
+
+                <!-- Success Message -->
+                <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${message}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <form th:object="${pageConfig}" method="post" action="/generate">
+                    <!-- Navigation Tabs -->
+                    <ul class="nav nav-tabs mb-4" id="configTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="global-tab" data-bs-toggle="tab" data-bs-target="#global" type="button" role="tab">
+                                <i class="fas fa-cog me-2"></i>Global Setup
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="page-tab" data-bs-toggle="tab" data-bs-target="#page" type="button" role="tab">
+                                <i class="fas fa-file-alt me-2"></i>Page Section
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="keys-tab" data-bs-toggle="tab" data-bs-target="#keys" type="button" role="tab">
+                                <i class="fas fa-keyboard me-2"></i>Key Sections
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="configTabContent">
+                        <!-- Global Setup Tab -->
+                        <div class="tab-pane fade show active" id="global" role="tabpanel">
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="card section-card">
+                                        <div class="card-header bg-primary text-white">
+                                            <h3 class="mb-0">
+                                                <i class="fas fa-cog me-2"></i>
+                                                Global Setup Configuration
+                                            </h3>
+                                            <p class="mb-0 mt-2">Global settings applied to all pages</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <!-- LED Brightness -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="ledbright" class="form-label">LED Brightness</label>
+                                                    <div class="d-flex align-items-center">
+                                                        <input type="range" class="form-range flex-grow-1 me-3" id="ledbright" th:field="*{globalSetup.ledbright}" min="0" max="100">
+                                                        <span class="badge bg-primary" id="ledbrightValue" th:text="*{globalSetup.ledbright}">30</span>
+                                                    </div>
+                                                    <div class="help-text">LED brightness level (0-100)</div>
+                                                </div>
+
+                                                <!-- Screen Brightness -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="screenbright" class="form-label">Screen Brightness</label>
+                                                    <div class="d-flex align-items-center">
+                                                        <input type="range" class="form-range flex-grow-1 me-3" id="screenbright" th:field="*{globalSetup.screenbright}" min="0" max="100">
+                                                        <span class="badge bg-primary" id="screenbrightValue" th:text="*{globalSetup.screenbright}">80</span>
+                                                    </div>
+                                                    <div class="help-text">Screen brightness level (0-100)</div>
+                                                </div>
+
+                                                <!-- Dark Fonts -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Dark Fonts</label>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" id="darkFontsOff" th:field="*{globalSetup.darkFonts}" th:value="false" checked>
+                                                        <label class="form-check-label" for="darkFontsOff">
+                                                            <i class="fas fa-sun text-warning me-2"></i>Light Fonts
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" id="darkFontsOn" th:field="*{globalSetup.darkFonts}" th:value="true">
+                                                        <label class="form-check-label" for="darkFontsOn">
+                                                            <i class="fas fa-moon text-dark me-2"></i>Dark Fonts
+                                                        </label>
+                                                    </div>
+                                                    <div class="help-text">Font color based on wallpaper background</div>
+                                                </div>
+
+                                                <!-- Wallpaper -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="wallpaper" class="form-label">Wallpaper</label>
+                                                    <select class="form-select" id="wallpaper" th:field="*{globalSetup.wallpaper}">
+                                                        <option value="wp1" selected>wp1 (Default)</option>
+                                                    </select>
+                                                    <div class="help-text">Wallpaper background selection</div>
+                                                </div>
+
+                                                <!-- Long Press Timing -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="longPressTiming" class="form-label">Long Press Timing</label>
+                                                    <select class="form-select" id="longPressTiming" th:field="*{globalSetup.longPressTiming}">
+                                                        <option value="1.0" selected>1.0 second</option>
+                                                        <option value="1.5">1.5 seconds</option>
+                                                        <option value="2.0">2.0 seconds</option>
+                                                        <option value="2.5">2.5 seconds</option>
+                                                    </select>
+                                                    <div class="help-text">Long press detection time</div>
+                                                </div>
+
+                                                <!-- Wireless 2.4G -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Wireless 2.4G</label>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" id="wireless24GOff" th:field="*{globalSetup.wireless24G}" th:value="false">
+                                                        <label class="form-check-label" for="wireless24GOff">
+                                                            <i class="fas fa-times text-danger me-2"></i>Off
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" id="wireless24GOn" th:field="*{globalSetup.wireless24G}" th:value="true" checked>
+                                                        <label class="form-check-label" for="wireless24GOn">
+                                                            <i class="fas fa-wifi text-success me-2"></i>On
+                                                        </label>
+                                                    </div>
+                                                    <div class="help-text">Wireless connectivity (Blue/Gold version only)</div>
+                                                </div>
+
+                                                <!-- Wireless ID -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="wirelessId" class="form-label">Wireless ID</label>
+                                                    <input type="number" class="form-control" id="wirelessId" th:field="*{globalSetup.wirelessId}" min="1" max="99">
+                                                    <div class="help-text">Wireless device ID (1-99)</div>
+                                                </div>
+
+                                                <!-- Wireless dB -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="wirelessDb" class="form-label">Wireless dB</label>
+                                                    <select class="form-select" id="wirelessDb" th:field="*{globalSetup.wirelessDb}">
+                                                        <option value="0">12dBm</option>
+                                                        <option value="1">10dBm</option>
+                                                        <option value="2">9dBm</option>
+                                                        <option value="3">8dBm</option>
+                                                        <option value="4">6dBm</option>
+                                                        <option value="5">3dBm</option>
+                                                        <option value="6" selected>0dBm (Default)</option>
+                                                        <option value="7">-2dBm</option>
+                                                        <option value="8">-5dBm</option>
+                                                        <option value="9">-10dBm</option>
+                                                        <option value="10">-15dBm</option>
+                                                        <option value="11">-20dBm</option>
+                                                        <option value="12">-25dBm</option>
+                                                        <option value="13">-30dBm</option>
+                                                        <option value="14">-25dBm</option>
+                                                    </select>
+                                                    <div class="help-text">Wireless signal transmission power</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Page Section Tab -->
+                        <div class="tab-pane fade" id="page" role="tabpanel">
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="card section-card">
+                                        <div class="card-header bg-primary text-white">
+                                            <h3 class="mb-0">
+                                                <i class="fas fa-file-alt me-2"></i>
+                                                Page Section Configuration
+                                            </h3>
+                                            <p class="mb-0 mt-2">Page-specific settings and MIDI configuration</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <!-- Page Name -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="pageName" class="form-label">Page Name</label>
+                                                    <input type="text" class="form-control" id="pageName" th:field="*{pageSection.pageName}" maxlength="4" placeholder="PAGE">
+                                                    <div class="help-text">Page name in uppercase letters (max 4 characters)</div>
+                                                </div>
+
+                                                <!-- Expression Pedal 1 -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Expression Pedal 1</label>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="exp1CH" class="form-label small">Channel</label>
+                                                            <input type="number" class="form-control" id="exp1CH" th:field="*{pageSection.exp1CH}" min="1" max="16">
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="exp1CC" class="form-label small">CC Number</label>
+                                                            <input type="number" class="form-control" id="exp1CC" th:field="*{pageSection.exp1CC}" min="0" max="127">
+                                                        </div>
+                                                    </div>
+                                                    <div class="help-text">MIDI channel and CC number for expression pedal 1</div>
+                                                </div>
+
+                                                <!-- Expression Pedal 2 -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Expression Pedal 2</label>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="exp2CH" class="form-label small">Channel</label>
+                                                            <input type="number" class="form-control" id="exp2CH" th:field="*{pageSection.exp2CH}" min="1" max="16">
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="exp2CC" class="form-label small">CC Number</label>
+                                                            <input type="number" class="form-control" id="exp2CC" th:field="*{pageSection.exp2CC}" min="0" max="127">
+                                                        </div>
+                                                    </div>
+                                                    <div class="help-text">MIDI channel and CC number for expression pedal 2</div>
+                                                </div>
+
+                                                <!-- Encoder Configuration -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Encoder Configuration</label>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="encoderCC" class="form-label small">CC Number</label>
+                                                            <input type="number" class="form-control" id="encoderCC" th:field="*{pageSection.encoderCC}" min="0" max="127">
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="encoderName" class="form-label small">Name</label>
+                                                            <input type="text" class="form-control" id="encoderName" th:field="*{pageSection.encoderName}" maxlength="4" placeholder="MYCC">
+                                                        </div>
+                                                    </div>
+                                                    <div class="help-text">Encoder CC number and display name</div>
+                                                </div>
+
+                                                <!-- MIDI Through -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">MIDI Through</label>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" id="midithroughOff" th:field="*{pageSection.midithrough}" th:value="false">
+                                                        <label class="form-check-label" for="midithroughOff">
+                                                            <i class="fas fa-times text-danger me-2"></i>Off
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" id="midithroughOn" th:field="*{pageSection.midithrough}" th:value="true" checked>
+                                                        <label class="form-check-label" for="midithroughOn">
+                                                            <i class="fas fa-check text-success me-2"></i>On
+                                                        </label>
+                                                    </div>
+                                                    <div class="help-text">MIDI through functionality</div>
+                                                </div>
+
+                                                <!-- Display Number Format -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="displayNumberABC" class="form-label">Display Number Format</label>
+                                                    <select class="form-select" id="displayNumberABC" th:field="*{pageSection.displayNumberABC}">
+                                                        <option value="123">123 (Numerical)</option>
+                                                        <option value="abc3" selected>abc3 (1A,1B,1C,2A...)</option>
+                                                        <option value="abc4">abc4 (1A,1B,1C,1D,2A...)</option>
+                                                        <option value="abc5">abc5 (1A,1B,1C,1D,1E,2A...)</option>
+                                                        <option value="abc8">abc8 (1A,1B,1C,1D,1E,1F,1G,1H,2A...)</option>
+                                                    </select>
+                                                    <div class="help-text">PC display format</div>
+                                                </div>
+
+                                                <!-- Group Number -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="groupNumber" class="form-label">Group Number</label>
+                                                    <select class="form-select" id="groupNumber" th:field="*{pageSection.groupNumber}">
+                                                        <option value="3" selected>3 patches per group</option>
+                                                        <option value="4">4 patches per group</option>
+                                                        <option value="5">5 patches per group</option>
+                                                        <option value="8">8 patches per group</option>
+                                                    </select>
+                                                    <div class="help-text">Number of patches per group (for 123 format)</div>
+                                                </div>
+
+                                                <!-- Display PC Offset -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Display PC Offset</label>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" id="displayPcOffset0" th:field="*{pageSection.displayPcOffset}" th:value="0">
+                                                        <label class="form-check-label" for="displayPcOffset0">
+                                                            <i class="fas fa-zero me-2"></i>Start from 0
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" id="displayPcOffset1" th:field="*{pageSection.displayPcOffset}" th:value="1" checked>
+                                                        <label class="form-check-label" for="displayPcOffset1">
+                                                            <i class="fas fa-one me-2"></i>Start from 1
+                                                        </label>
+                                                    </div>
+                                                    <div class="help-text">Display PC numbers starting from 0 or 1</div>
+                                                </div>
+
+                                                <!-- Display Bank Offset -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Display Bank Offset</label>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" id="displayBankOffset0" th:field="*{pageSection.displayBankOffset}" th:value="0">
+                                                        <label class="form-check-label" for="displayBankOffset0">
+                                                            <i class="fas fa-zero me-2"></i>Start from 0A,0B,0C...
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" id="displayBankOffset1" th:field="*{pageSection.displayBankOffset}" th:value="1" checked>
+                                                        <label class="form-check-label" for="displayBankOffset1">
+                                                            <i class="fas fa-one me-2"></i>Start from 1A,1B,1C...
+                                                        </label>
+                                                    </div>
+                                                    <div class="help-text">Bank display starting point for abcX format</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Key Sections Tab -->
+                        <div class="tab-pane fade" id="keys" role="tabpanel">
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="card section-card">
+                                        <div class="card-header bg-primary text-white">
+                                            <h3 class="mb-0">
+                                                <i class="fas fa-keyboard me-2"></i>
+                                                Key Sections Configuration
+                                            </h3>
+                                            <p class="mb-0 mt-2">Configure all 10 keys (0-9) with their MIDI operations</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="keyConfigContainer">
+                                                <!-- Key configurations will be generated here -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-secondary" id="prevTab" disabled>
+                                    <i class="fas fa-chevron-left me-2"></i>Previous
+                                </button>
+                                <div>
+                                    <button type="button" class="btn btn-info me-2" id="previewBtn">
+                                        <i class="fas fa-eye me-2"></i>Preview
+                                    </button>
+                                    <button type="button" class="btn btn-primary" id="nextTab">
+                                        Next<i class="fas fa-chevron-right ms-2"></i>
+                                    </button>
+                                    <button type="submit" class="btn btn-success ms-2">
+                                        <i class="fas fa-download me-2"></i>Generate Config
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Modal -->
+                    <div class="modal fade" id="previewModal" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-eye me-2"></i>Configuration Preview
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <pre id="previewContent" class="bg-light p-3 rounded"></pre>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Update range value displays
+        document.getElementById('ledbright').addEventListener('input', function() {
+            document.getElementById('ledbrightValue').textContent = this.value;
+        });
+
+        document.getElementById('screenbright').addEventListener('input', function() {
+            document.getElementById('screenbrightValue').textContent = this.value;
+        });
+
+        // Tab navigation
+        let currentTab = 0;
+        const tabs = ['global', 'page', 'keys'];
+        const tabButtons = document.querySelectorAll('[data-bs-toggle="tab"]');
+
+        document.getElementById('nextTab').addEventListener('click', function() {
+            if (currentTab < tabs.length - 1) {
+                currentTab++;
+                document.querySelector(`#${tabs[currentTab]}-tab`).click();
+                updateNavigationButtons();
+            }
+        });
+
+        document.getElementById('prevTab').addEventListener('click', function() {
+            if (currentTab > 0) {
+                currentTab--;
+                document.querySelector(`#${tabs[currentTab]}-tab`).click();
+                updateNavigationButtons();
+            }
+        });
+
+        function updateNavigationButtons() {
+            document.getElementById('prevTab').disabled = currentTab === 0;
+            document.getElementById('nextTab').disabled = currentTab === tabs.length - 1;
+        }
+
+        // Initialize tab state
+        tabButtons.forEach((button, index) => {
+            button.addEventListener('click', function() {
+                currentTab = index;
+                updateNavigationButtons();
+            });
+        });
+
+        // Preview functionality
+        document.getElementById('previewBtn').addEventListener('click', function() {
+            const form = document.querySelector('form');
+            const formData = new FormData(form);
+            fetch('/preview', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('previewContent').textContent = data;
+                new bootstrap.Modal(document.getElementById('previewModal')).show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error generating preview');
+            });
+        });
+
+        // Page Section validation
+        document.getElementById('pageName').addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+            if (this.value.length > 4) {
+                this.value = this.value.substring(0, 4);
+            }
+        });
+
+        document.getElementById('encoderName').addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+            if (this.value.length > 4) {
+                this.value = this.value.substring(0, 4);
+            }
+        });
+
+        // Validate MIDI channel inputs (1-16)
+        const midiChannelInputs = ['exp1CH', 'exp2CH'];
+        midiChannelInputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                let value = parseInt(this.value);
+                if (value < 1) this.value = 1;
+                if (value > 16) this.value = 16;
+            });
+        });
+
+        // Validate CC number inputs (0-127)
+        const ccInputs = ['exp1CC', 'exp2CC', 'encoderCC'];
+        ccInputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                let value = parseInt(this.value);
+                if (value < 0) this.value = 0;
+                if (value > 127) this.value = 127;
+            });
+        });
+
+        // Key Section functionality - Removed for fresh start
+
+
+
+
+
+
+
+
+
+
+
+        // Key Section functionality for multiple operation types
+        function generateAllKeys() {
+            const container = document.getElementById('keyConfigContainer');
+            
+            // Generate keys 0-9
+            for (let keyNum = 0; keyNum < 10; keyNum++) {
+                const keySection = createKeySection(keyNum);
+                container.appendChild(keySection);
+            }
+        }
+
+        function createKeySection(keyNum) {
+            const keyDiv = document.createElement('div');
+            keyDiv.className = 'key-section mb-4';
+            keyDiv.setAttribute('data-key', keyNum);
+            
+            keyDiv.innerHTML = `
+                <div class="card border-primary">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-key me-2"></i>Key ${keyNum}
+                            </h5>
+                            <div class="form-check">
+                                <input class="form-check-input key-enabled" type="checkbox" id="key${keyNum}Enabled" name="keySections[${keyNum}].enabled" checked>
+                                <label class="form-check-label" for="key${keyNum}Enabled">
+                                    Enable Key
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="key${keyNum}Keytimes" class="form-label">Key Times</label>
+                                <select class="form-select" id="key${keyNum}Keytimes" name="keySections[${keyNum}].keytimes">
+                                    <option value="1">1 operation</option>
+                                    <option value="2">2 operations</option>
+                                    <option value="3">3 operations</option>
+                                    <option value="4">4 operations</option>
+                                </select>
+                                <div class="help-text">Number of operations for this key (1-4)</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="key${keyNum}Ledmode" class="form-label">LED Mode</label>
+                                <select class="form-select" id="key${keyNum}Ledmode" name="keySections[${keyNum}].ledmode">
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="select">Select</option>
+                                    <option value="tap">Tap</option>
+                                </select>
+                                <div class="help-text">LED behavior mode</div>
+                            </div>
+                        </div>
+                        <div class="operations-container" data-key="${keyNum}">
+                            ${createOperationGroup(keyNum, 0)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listener for keytimes change
+            const keytimesSelect = keyDiv.querySelector(`#key${keyNum}Keytimes`);
+            keytimesSelect.addEventListener('change', function() {
+                updateOperations(keyNum, parseInt(this.value));
+            });
+            
+            return keyDiv;
+        }
+
+        function createOperationGroup(keyNum, operationNum) {
+            return `
+                <div class="operation-group mb-3" data-operation="${operationNum}">
+                    <h6 class="text-primary">Operation ${operationNum + 1}</h6>
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            <label class="form-label small">Operation Types</label>
+                            <div class="operation-types-container" data-key="${keyNum}" data-operation="${operationNum}">
+                                <div class="operation-type-list" data-key="${keyNum}" data-operation="${operationNum}">
+                                    <!-- Operation types will be added here dynamically -->
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-operation-type" 
+                                        data-key="${keyNum}" data-operation="${operationNum}">
+                                    <i class="fas fa-plus me-1"></i>Add Operation Type
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="operation-config" data-key="${keyNum}" data-operation="${operationNum}">
+                        <!-- Operation configuration will be dynamically loaded here -->
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateOperations(keyNum, keytimes) {
+            const container = document.querySelector(`[data-key="${keyNum}"] .operations-container`);
+            container.innerHTML = '';
+            
+            for (let i = 0; i < keytimes; i++) {
+                const operationDiv = document.createElement('div');
+                operationDiv.innerHTML = createOperationGroup(keyNum, i);
+                container.appendChild(operationDiv.firstElementChild);
+            }
+            
+            // Initialize operation types for new operations
+            initializeOperationTypes();
+        }
+
+        function initializeOperationTypes() {
+            // Add event listeners for "Add Operation Type" buttons
+            document.querySelectorAll('.add-operation-type').forEach(button => {
+                button.addEventListener('click', function() {
+                    const keyNum = this.getAttribute('data-key');
+                    const operationNum = this.getAttribute('data-operation');
+                    addOperationType(keyNum, operationNum);
+                });
+            });
+            
+            // Initialize with default operation types
+            document.querySelectorAll('.operation-group').forEach(group => {
+                const keyNum = group.getAttribute('data-key');
+                const operationNum = group.getAttribute('data-operation');
+                // Add one default operation type
+                addOperationType(keyNum, operationNum);
+            });
+        }
+
+        function addOperationType(keyNum, operationNum) {
+            const operationTypeList = document.querySelector(`.operation-type-list[data-key="${keyNum}"][data-operation="${operationNum}"]`);
+            const existingTypes = operationTypeList.querySelectorAll('.operation-type-item');
+            
+            if (existingTypes.length >= 4) {
+                alert('Maximum 4 operation types allowed per operation');
+                return;
+            }
+            
+            const typeIndex = existingTypes.length;
+            const operationTypeItem = document.createElement('div');
+            operationTypeItem.className = 'operation-type-item mb-2';
+            operationTypeItem.setAttribute('data-type-index', typeIndex);
+            
+            operationTypeItem.innerHTML = `
+                <div class="operation-type-item-content mb-3 p-3 border rounded">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label small">Operation Type</label>
+                            <select class="form-select form-select-sm operation-type-select" 
+                                    name="keySections[${keyNum}].operationTypes[${operationNum}][${typeIndex}]" 
+                                    data-key="${keyNum}" data-operation="${operationNum}" data-type-index="${typeIndex}">
+                                <option value="shortDw">Short Down</option>
+                                <option value="shortUp">Short Up</option>
+                                <option value="longDw">Long Down</option>
+                                <option value="longUp">Long Up</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">LED Colors</label>
+                            <div class="row">
+                                <div class="col-4">
+                                    <input type="text" class="form-control form-control-sm" placeholder="0x666666"
+                                           name="keySections[${keyNum}].ledcolors[${operationNum}][${typeIndex}][0]">
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" class="form-control form-control-sm" placeholder="0x666666"
+                                           name="keySections[${keyNum}].ledcolors[${operationNum}][${typeIndex}][1]">
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" class="form-control form-control-sm" placeholder="0xff0000"
+                                           name="keySections[${keyNum}].ledcolors[${operationNum}][${typeIndex}][2]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">&nbsp;</label>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-operation-type d-block" 
+                                    data-key="${keyNum}" data-operation="${operationNum}" data-type-index="${typeIndex}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            operationTypeList.appendChild(operationTypeItem);
+            
+            // Add event listeners
+            const select = operationTypeItem.querySelector('.operation-type-select');
+            select.addEventListener('change', function() {
+                updateOperationConfig(keyNum, operationNum);
+            });
+            
+            const removeBtn = operationTypeItem.querySelector('.remove-operation-type');
+            removeBtn.addEventListener('click', function() {
+                removeOperationType(keyNum, operationNum, typeIndex);
+            });
+            
+            // Update configuration
+            updateOperationConfig(keyNum, operationNum);
+        }
+
+        function removeOperationType(keyNum, operationNum, typeIndex) {
+            const operationTypeItem = document.querySelector(`.operation-type-item[data-type-index="${typeIndex}"]`);
+            if (operationTypeItem) {
+                operationTypeItem.remove();
+                
+                // Reindex remaining items
+                const operationTypeList = document.querySelector(`.operation-type-list[data-key="${keyNum}"][data-operation="${operationNum}"]`);
+                const remainingItems = operationTypeList.querySelectorAll('.operation-type-item');
+                remainingItems.forEach((item, index) => {
+                    item.setAttribute('data-type-index', index);
+                    
+                    // Reindex operation type select
+                    const select = item.querySelector('.operation-type-select');
+                    select.setAttribute('name', `keySections[${keyNum}].operationTypes[${operationNum}][${index}]`);
+                    select.setAttribute('data-type-index', index);
+                    
+                    // Reindex LED color inputs
+                    const ledColorInputs = item.querySelectorAll('input[type="text"]');
+                    ledColorInputs.forEach((input, colorIndex) => {
+                        input.setAttribute('name', `keySections[${keyNum}].ledcolors[${operationNum}][${index}][${colorIndex}]`);
+                    });
+                    
+                    // Reindex remove button
+                    const removeBtn = item.querySelector('.remove-operation-type');
+                    removeBtn.setAttribute('data-type-index', index);
+                });
+                
+                updateOperationConfig(keyNum, operationNum);
+            }
+        }
+
+        function updateOperationConfig(keyNum, operationNum) {
+            const configContainer = document.querySelector(`.operation-config[data-key="${keyNum}"][data-operation="${operationNum}"]`);
+            const selects = document.querySelectorAll(`.operation-type-list[data-key="${keyNum}"][data-operation="${operationNum}"] .operation-type-select`);
+            
+            let configHTML = '';
+            
+            selects.forEach((select, index) => {
+                const operationType = select.value;
+                let operationHTML = '';
+                
+                switch(operationType) {
+                    case 'shortDw':
+                    case 'shortUp':
+                        operationHTML = `
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="card border-secondary">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0">${operationType === 'shortDw' ? 'Short Down' : 'Short Up'} (Type ${index + 1})</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    <label class="form-label small">MIDI Channel</label>
+                                                    <input type="number" class="form-control form-control-sm" placeholder="CH" min="1" max="16" name="keySections[${keyNum}].${operationType}[${operationNum}][0]">
+                                                </div>
+                                                <div class="col-3">
+                                                    <label class="form-label small">Type</label>
+                                                    <select class="form-select form-select-sm" name="keySections[${keyNum}].${operationType}[${operationNum}][1]">
+                                                        <option value="CC">CC</option>
+                                                        <option value="PC">PC</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-3">
+                                                    <label class="form-label small">Number</label>
+                                                    <input type="number" class="form-control form-control-sm" placeholder="Num" min="0" max="127" name="keySections[${keyNum}].${operationType}[${operationNum}][2]">
+                                                </div>
+                                                <div class="col-3">
+                                                    <label class="form-label small">Value</label>
+                                                    <input type="number" class="form-control form-control-sm" placeholder="Val" min="0" max="127" name="keySections[${keyNum}].${operationType}[${operationNum}][3]">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'longDw':
+                    case 'longUp':
+                        operationHTML = `
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="card border-secondary">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0">${operationType === 'longDw' ? 'Long Down' : 'Long Up'} (Type ${index + 1})</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    <label class="form-label small">MIDI Channel</label>
+                                                    <input type="number" class="form-control form-control-sm" placeholder="CH" min="1" max="16" name="keySections[${keyNum}].${operationType}[${operationNum}][0]">
+                                                </div>
+                                                <div class="col-3">
+                                                    <label class="form-label small">Type</label>
+                                                    <input type="text" class="form-control form-control-sm" value="PC" readonly>
+                                                </div>
+                                                <div class="col-3">
+                                                    <label class="form-label small">PC Number</label>
+                                                    <input type="number" class="form-control form-control-sm" placeholder="PC" min="0" max="127" name="keySections[${keyNum}].${operationType}[${operationNum}][2]">
+                                                </div>
+                                                <div class="col-3">
+                                                    <label class="form-label small">Value</label>
+                                                    <input type="text" class="form-control form-control-sm" value="-" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                }
+                
+                configHTML += operationHTML;
+            });
+            
+            configContainer.innerHTML = configHTML;
+        }
+
+        // Initialize key sections when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            generateAllKeys();
+            initializeOperationTypes();
+        });
+    </script>
+</body>
+</html> 
